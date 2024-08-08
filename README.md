@@ -13,7 +13,7 @@ The **Gift Card Assistant** is an application designed to help users purchase gi
   - [Configuration](#configuration)
   - [Running the Application](#running-the-application)
 - [System Prompts](#system-prompts)
-- [Knowledge Base](#knowledge-base)
+- [Advanced Prompting](#advanced-prompting)
 - [Code](#code)
 
 ## Overview
@@ -146,7 +146,7 @@ system_prompt = """
 
 The preprocessing template used for advanced prompting in AWS Bedrock is as follows:
 
-```json
+```python
 {
     "anthropic_version": "bedrock-2023-05-31",
     "system": "$instruction$",
@@ -185,7 +185,7 @@ The preprocessing template used for advanced prompting in AWS Bedrock is as foll
 
 The orchestration template is as follows:
 
-```json
+```python
 {
     "anthropic_version": "bedrock-2023-05-31",
     "system": "$instruction$
