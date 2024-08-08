@@ -339,8 +339,8 @@ def render_order_summary():
 # Initialize the Bedrock client
 bedrock_agent_runtime_client = boto3.client('bedrock-agent-runtime', region_name='us-east-1')
 
-agent_id = "REWBEGOEHC"  # Replace with your actual agent ID
-agent_alias_id = "RCJVMWDH8E"  # Replace with your actual alias ID
+agent_id = "xxxxx"  # Replace with your actual agent ID
+agent_alias_id = "xxxxx"  # Replace with your actual alias ID
 session_id = str(uuid.uuid4())
 
 # Streamlit app
