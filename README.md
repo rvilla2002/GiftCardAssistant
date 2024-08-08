@@ -140,6 +140,7 @@ system_prompt = """
   
   Ensure that you follow these steps meticulously, capturing all necessary details and guiding the user smoothly through the process without asking for the same information twice.
 </Context>
+```
 
 ### Advanced Prompting
 
