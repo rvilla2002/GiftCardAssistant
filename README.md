@@ -193,7 +193,7 @@ from io import BytesIO
 import random
 
 # OpenAI API key
-OPENAI_API_KEY = 'your-openai-api-key'
+OPENAI_API_KEY = 'sk-None-clKbLTz3zam7a59gAt1KT3BlbkFJSYLnRwJHlrNghbft0KEH'
 
 # Initialize the OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
@@ -339,8 +339,8 @@ def render_order_summary():
 # Initialize the Bedrock client
 bedrock_agent_runtime_client = boto3.client('bedrock-agent-runtime', region_name='us-east-1')
 
-agent_id = "xxxxx"  # Replace with your actual agent ID
-agent_alias_id = "xxxxx"  # Replace with your actual alias ID
+agent_id = "REWBEGOEHC"  # Replace with your actual agent ID
+agent_alias_id = "RCJVMWDH8E"  # Replace with your actual alias ID
 session_id = str(uuid.uuid4())
 
 # Streamlit app
@@ -374,6 +374,8 @@ def main():
         st.session_state.last_theme = ""
     if 'delivery_method_prompted' not in st.session_state:
         st.session_state.delivery_method_prompted = False
+    if 'balance_check' not in st.session_state:
+        st.session_state.balance_check = False
 
     # Sidebar
     st.sidebar.image("/home/ec2-user/environment/sidebar.png", use_column_width=True)  # Image file path replaced
@@ -492,33 +494,44 @@ def main():
         else:
             # Initial image generation or other interactions
             st.session_state['conversation'].append({"role": "user", "message": user_input})
-            response, image_url = invoke_agent(user_input, st.session_state['session_id'], agent_id, agent_alias_id, st.session_state['last_theme'])
-            st.session_state.debug_info.append(f"Response: {response}")  # Debugging statement
-            print(f"Response: {response}")  # Terminal debugging
-            assistant_message = {"role": "assistant", "message": response}
-            if image_url:
-                amount = 50  # Default amount in case parsing fails
-                if "$" in user_input:
-                    try:
-                        amount = int(user_input.replace("$", "").strip())
-                    except ValueError:
-                        pass
-                st.session_state.last_amount = amount  # Update with actual amount
-                assistant_message['image_url'] = image_url
-                st.session_state.image_generated = True  # Set the flag to indicate image generation
-                st.session_state.last_image_url = image_url
-            st.session_state['conversation'].append(assistant_message)
-            st.session_state['last_theme'] = user_input if "theme" in user_input.lower() else st.session_state['last_theme']
-            if "How would you like to deliver the gift card?" in response:
-                st.session_state.delivery_method_prompted = True
-            elif st.session_state.delivery_method_prompted:
-                st.session_state.delivery_method = user_input
-                st.session_state.personalized_message = f"Merry Christmas, {st.session_state.recipient_name}! Enjoy this ${st.session_state.last_amount} Sephora gift card to treat yourself to some new beauty products. Hope you have a wonderful holiday season!"
-                st.session_state.checkout = True  # Redirect to checkout
+            if "balance" in user_input.lower():
+                st.session_state.balance_check = True
+                response_text = "Sure, I can help with that. Please provide the brand of the gift card and the last four digits."
+                st.session_state['conversation'].append({"role": "assistant", "message": response_text})
+            elif st.session_state.balance_check:
+                balance = random.randint(0, 100)
+                response_text = f"The balance for your {user_input.split()[-2]} gift card ending in {user_input.split()[-1]} is ${balance}."
+                st.session_state['conversation'].append({"role": "assistant", "message": response_text})
+                st.session_state.balance_check = False
+            else:
+                response, image_url = invoke_agent(user_input, st.session_state['session_id'], agent_id, agent_alias_id, st.session_state['last_theme'])
+                st.session_state.debug_info.append(f"Response: {response}")  # Debugging statement
+                print(f"Response: {response}")  # Terminal debugging
+                assistant_message = {"role": "assistant", "message": response}
+                if image_url:
+                    amount = 50  # Default amount in case parsing fails
+                    if "$" in user_input:
+                        try:
+                            amount = int(user_input.replace("$", "").strip())
+                        except ValueError:
+                            pass
+                    st.session_state.last_amount = amount  # Update with actual amount
+                    assistant_message['image_url'] = image_url
+                    st.session_state.image_generated = True  # Set the flag to indicate image generation
+                    st.session_state.last_image_url = image_url
+                st.session_state['conversation'].append(assistant_message)
+                st.session_state['last_theme'] = user_input if "theme" in user_input.lower() else st.session_state['last_theme']
+                if "How would you like to deliver the gift card?" in response:
+                    st.session_state.delivery_method_prompted = True
+                elif st.session_state.delivery_method_prompted:
+                    st.session_state.delivery_method = user_input
+                    st.session_state.personalized_message = f"Merry Christmas, {st.session_state.recipient_name}! Enjoy this ${st.session_state.last_amount} Sephora gift card to treat yourself to some new beauty products. Hope you have a wonderful holiday season!"
+                    st.session_state.checkout = True  # Redirect to checkout
         st.rerun()
 
 if __name__ == "__main__":
     main()
+
 ```python
 
 
