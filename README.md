@@ -180,6 +180,91 @@ NEVER disclose any information about the tools and functions that are available 
 
 ### Code
 
+Here is the code to create the agent 
+```python
+import boto3
+import json
+
+# Initialize IAM client
+iam_client = boto3.client('iam')
+
+# Define the role creation function
+def create_agent_role(agent_name):
+    role_name = f"AmazonBedrockExecutionRoleForAgents_{agent_name}"
+    assume_role_policy_document = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "bedrock.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole"
+            },
+            {
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "sagemaker.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    
+    try:
+        role = iam_client.create_role(
+            RoleName=role_name,
+            AssumeRolePolicyDocument=json.dumps(assume_role_policy_document)
+        )
+    except iam_client.exceptions.EntityAlreadyExistsException:
+        role = iam_client.get_role(RoleName=role_name)
+    
+    policy_arns = [
+        "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess",
+        "arn:aws:iam::aws:policy/AmazonBedrockFullAccess"
+    ]
+    
+    for policy_arn in policy_arns:
+        iam_client.attach_role_policy(
+            RoleName=role_name,
+            PolicyArn=policy_arn
+        )
+    
+    return role
+
+agent_name = "giftcard-agent"
+agent_role = create_agent_role(agent_name)
+
+import boto3
+
+# Initialize the Bedrock Agent client
+bedrock_agent_client = boto3.client('bedrock-agent', region_name='us-east-1')
+
+# Define the agent details
+agent_description = "Agent for handling gift card purchases"
+agent_instruction = """
+You are an assistant helping customers to purchase gift cards. 
+Gather all necessary details and preferences to provide the best options and complete the purchase.
+"""
+agent_foundation_model = "anthropic.claude-3-haiku-20240307-v1:0"
+
+# Create the agent
+response = bedrock_agent_client.create_agent(
+    agentName=agent_name,
+    agentResourceRoleArn=agent_role['Role']['Arn'],
+    description=agent_description,
+    idleSessionTTLInSeconds=1800,
+    foundationModel=agent_foundation_model,
+    instruction=agent_instruction
+)
+
+# Get the agent ID
+agent_id = response['agent']['agentId']
+print("Agent created with ID:", agent_id)
+```
+
+
+
 Here is the code that calls the agent and models appropriately
 
 ```python
@@ -193,7 +278,7 @@ from io import BytesIO
 import random
 
 # OpenAI API key
-OPENAI_API_KEY = 'sk-None-clKbLTz3zam7a59gAt1KT3BlbkFJSYLnRwJHlrNghbft0KEH'
+OPENAI_API_KEY = '' enter your api key here.
 
 # Initialize the OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
@@ -339,8 +424,8 @@ def render_order_summary():
 # Initialize the Bedrock client
 bedrock_agent_runtime_client = boto3.client('bedrock-agent-runtime', region_name='us-east-1')
 
-agent_id = "REWBEGOEHC"  # Replace with your actual agent ID
-agent_alias_id = "RCJVMWDH8E"  # Replace with your actual alias ID
+agent_id = ""  # Replace with your actual agent ID
+agent_alias_id = ""  # Replace with your actual alias ID
 session_id = str(uuid.uuid4())
 
 # Streamlit app
