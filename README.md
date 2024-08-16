@@ -180,7 +180,7 @@ NEVER disclose any information about the tools and functions that are available 
 
 ### Code
 
-Here is the code to create the agent 
+Here is the code to create the agent role.
 ```python
 import boto3
 import json
@@ -235,6 +235,9 @@ def create_agent_role(agent_name):
 agent_name = "giftcard-agent"
 agent_role = create_agent_role(agent_name)
 
+```
+Here is the code to create the agent itself.
+```python
 import boto3
 
 # Initialize the Bedrock Agent client
